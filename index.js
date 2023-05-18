@@ -42,7 +42,35 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
      });
-    
+      // 3. GET specific user by ID
+      app.get("/users/:id", async (req, res) => {
+        const id = req.params.id;
+        console.log("fetching user", id);
+        const query = { _id: new ObjectId(id) };
+        const result = await theCollection.findOne(query);
+        res.send(result);
+      });
+       // 4. PUT/UPDATE user by ID
+       app.put("/users/:id", async (req, res) => {
+        const id = req.params.id;
+        const user = req.body;
+        console.log("updating user", id);
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedUser = {
+          $set: {
+            name: user.name,
+            country: user.country,
+            img: user.img,
+          },
+        };
+        const result = await theCollection.updateOne(
+          filter,
+          updatedUser,
+          options
+        );
+        res.send(result);
+      });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
