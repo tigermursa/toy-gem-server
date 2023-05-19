@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -10,7 +11,7 @@ app.use(express.json());
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Middleware Ends here >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MongoDB codes Starts here>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const { MongoClient, ServerApiVersion } = require("mongodb");
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.1nqrclq.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -29,48 +30,65 @@ async function run() {
 
     const theCollection = client.db("toyGem").collection("toyCollection");
 
-     // 1. POST/CREATE
-     app.post("/users", async (req, res) => {
+    // 1. POST/CREATE
+    app.post("/users", async (req, res) => {
       const user = req.body;
       console.log("new toy", user);
       const result = await theCollection.insertOne(user);
       res.send(result);
-     });
-     // 2. GET/READ
-     app.get("/users", async (req, res) => {
+    });
+
+    // 2. GET/READ
+    app.get("/users", async (req, res) => {
       const cursor = theCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-     });
-      // 3. GET specific user by ID
-      app.get("/users/:id", async (req, res) => {
-        const id = req.params.id;
-        console.log("fetching user", id);
-        const query = { _id: new ObjectId(id) };
-        const result = await theCollection.findOne(query);
-        res.send(result);
-      });
-       // 4. PUT/UPDATE user by ID
-       app.put("/users/:id", async (req, res) => {
-        const id = req.params.id;
-        const user = req.body;
-        console.log("updating user", id);
-        const filter = { _id: new ObjectId(id) };
-        const options = { upsert: true };
-        const updatedUser = {
-          $set: {
-            name: user.name,
-            country: user.country,
-            img: user.img,
-          },
-        };
-        const result = await theCollection.updateOne(
-          filter,
-          updatedUser,
-          options
-        );
-        res.send(result);
-      });
+    });
+    // 3. GET specific user by ID
+    app.get("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("fetching user", id);
+      const query = { _id: new ObjectId(id) };
+      const result = await theCollection.findOne(query);
+      res.send(result);
+    });
+
+    // 4. PUT/UPDATE user by ID
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const user = req.body;
+      console.log("updating user", id);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedUser = {
+        $set: {
+          name: user.name,
+          img: user.img,
+          sellerName: user.sellerName,
+          sellerEmail: user.sellerEmail,
+          subCategory: user.subCategory,
+          price: user.price,
+          rating: user.rating,
+          quantity: user.quantity,
+          description: user.description,
+        },
+      };
+      const result = await theCollection.updateOne(
+        filter,
+        updatedUser,
+        options
+      );
+      res.send(result);
+    });
+
+    // 5. DELETE user by ID
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("deleting user", id);
+      const query = { _id: new ObjectId(id) };
+      const result = await theCollection.deleteOne(query);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
