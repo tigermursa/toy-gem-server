@@ -41,8 +41,8 @@ async function run() {
 
     // 2. GET/READ
     app.get("/users", async (req, res) => {
-      const cursor = theCollection.find();
-      const result = await cursor.toArray();
+      const cursor = theCollection.find().sort({createdAt:-1});
+      const result = await cursor.sort({createdAt:-1}).toArray();
       res.send(result);
     });
     // 3. GET specific user by ID
