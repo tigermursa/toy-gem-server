@@ -31,22 +31,22 @@ async function run() {
     const theCollection = client.db("toyGem").collection("toyCollection");
 
     // 1. POST/CREATE
-    app.post("/users", async (req, res) => {
+    app.post("/toys", async (req, res) => {
       const user = req.body;
-      body.createdAt = new Date();
+      user.createdAt = new Date();
       console.log("new toy", user);
       const result = await theCollection.insertOne(user);
       res.send(result);
     });
 
     // 2. GET/READ
-    app.get("/users", async (req, res) => {
-      const cursor = theCollection.find().sort({createdAt:-1});
-      const result = await cursor.sort({createdAt:-1}).toArray();
+    app.get("/toys", async (req, res) => {
+      const cursor = theCollection.find();
+      const result = await cursor.toArray();
       res.send(result);
     });
     // 3. GET specific user by ID
-    app.get("/users/:id", async (req, res) => {
+    app.get("/toys/:id", async (req, res) => {
       const id = req.params.id;
       console.log("fetching user", id);
       const query = { _id: new ObjectId(id) };
@@ -55,7 +55,7 @@ async function run() {
     });
 
     // 4. PUT/UPDATE user by ID
-    app.put("/users/:id", async (req, res) => {
+    app.put("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const user = req.body;
       console.log("updating user", id);
@@ -83,7 +83,7 @@ async function run() {
     });
 
     // 5. DELETE user by ID
-    app.delete("/users/:id", async (req, res) => {
+    app.delete("/toys/:id", async (req, res) => {
       const id = req.params.id;
       console.log("deleting user", id);
       const query = { _id: new ObjectId(id) };
