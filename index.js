@@ -33,6 +33,7 @@ async function run() {
     // 1. POST/CREATE
     app.post("/users", async (req, res) => {
       const user = req.body;
+      body.createdAt = new Date();
       console.log("new toy", user);
       const result = await theCollection.insertOne(user);
       res.send(result);
@@ -94,6 +95,16 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+
+    // get data by email
+    app.get("/mytoys/:email", async (req, res) => {
+      const result = await theCollection
+        .find({
+          sellerEmail: req.params.email,
+        })
+        .toArray();
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
